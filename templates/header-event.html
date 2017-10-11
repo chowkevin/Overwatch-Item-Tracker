@@ -5,3 +5,10 @@
 <div ng-show="$ctrl.item.dates.end < $ctrl.currentDate" class="event-ended">
   <h2>Event ended on {{$ctrl.item.dates.end | date:'MMM d yyyy'}}  local time</h2>
 </div>
+<div class="visual-setting" uib-tooltip="Layout Options" tooltip-placement="left" uib-dropdown>
+  <span class="glyphicon glyphicon-eye-open" uib-dropdown-toggle ng-class="{selected: $ctrl.onlyNew || $ctrl.hideUnlocked}"></span>
+  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+    <li><a ng-click="$ctrl.toggleOption('onlyNew')"><strong>New:</strong> {{$ctrl.onlyNew ? 'Show all unlocks' : 'Show new items'}}</a></li>
+    <li><a ng-click="$ctrl.toggleOption('hideUnlocked')"><strong>Unlocks:</strong> {{$ctrl.hideUnlocked ? 'Show all unlocks' : 'Hide unlocked'}}</a></li>
+  </ul>
+</div>

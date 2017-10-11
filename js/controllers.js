@@ -7,6 +7,14 @@ OWI.controller('MainCtrl', ["$rootScope", "$q", "$document", "$uibModal", "DataS
   this.noSupportMsg = CompatibilityService.noSupportMsg;
   this.totals = CostAndTotalService;
 
+  this.onlyNew = false;
+  this.hideUnlocked = false;
+
+  this.toggleOption = function(what) {
+    this[what] = !this[what];
+    $rootScope.$broadcast('event:visual:update', what)
+  }
+
   DataService.waitForInitialization().then(function(data) {
     vm.events = data.events;
     vm.heroes = data.heroes;
@@ -98,15 +106,6 @@ OWI.controller('MainCtrl', ["$rootScope", "$q", "$document", "$uibModal", "DataS
       controller: 'SettingsCtrl',
       controllerAs: 'settings'
     });
-  };
-
-  this.getImageUrl = function(url) {
-    return url;
-    /* if (location.host.match(/^localhost:5000$/)) {
-      return url.replace('https://d34nsd3ksgj839.cloudfront.net', 'http://localhost:5000/resources');
-    } else {
-      return url;
-    }*/
   };
 }]);
 
@@ -352,8 +351,40 @@ OWI.controller('HeroesCtrl', ["$scope", "$state", "$timeout", "$stateParams", "$
 OWI.controller("UpdateCtrl", ["$scope", "$rootScope", "DataService", "StorageService", "CompatibilityService", "CostAndTotalService", "$window", "event", function($scope, $rootScope, Data, StorageService, CompatibilityService, CostAndTotalService, $window, event) {
   $scope.preview = false;
   $scope.checked = Data.checked;
-  $scope.data = event;
+  $scope.data = angular.copy(event);
   $scope.canPlayType = CompatibilityService.canPlayType;
+
+  $scope.hideUnlocked = false;
+  $scope.onlyNew = false;
+
+  $rootScope.$on('event:visual:update', function(event, what) {
+    console.log(what)
+    $scope[what] = !$scope[what];
+    filterUnlocks();
+  });
+
+  function filterUnlocks() {
+    var out = {}
+    for (var type in event.items) {
+      out[type] = []
+      for (var item of event.items[type]) {
+        if (!item.isNew && $scope.onlyNew) continue;
+        if ($scope.hideUnlocked && Data.isItemChecked(item.hero, type, item.id)) continue;
+        out[type].push(item);
+      }
+    }
+    $scope.data.items = out;
+  }
+
+  $scope.toggleHideUnlocks = function() {
+    $scope.hideUnlocked = !$scope.hideUnlocked;
+    filterUnlocks();
+  };
+
+  $scope.toggleNew = function() {
+    $scope.showNew = !$scope.showNew;
+    filterUnlocks();
+  };
 
   CostAndTotalService.waitForInitialization().then(function(data) {
     $scope.totals = data.events[event.id].totals;

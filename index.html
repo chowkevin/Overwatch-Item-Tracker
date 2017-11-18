@@ -13,6 +13,19 @@
   <script src="./js/services.js"></script>
   <script src="./js/controllers.js"></script>
   <script src="./js/directives.js"></script>
+  <script>
+    // ServiceWorker is a progressive technology. Ignore unsupported browsers
+    if ('serviceWorker' in navigator) {
+      console.log('CLIENT: service worker registration in progress.');
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function() {
+        console.log('CLIENT: service worker registration complete.');
+      }, function() {
+        console.log('CLIENT: service worker registration failure.');
+      });
+    } else {
+      console.log('CLIENT: service worker is not supported.');
+    }
+  </script>
 </head>
 <body ng-controller="MainCtrl as $ctrl" id="{{$ctrl.item.id}}" style="opacity: 0">
   <div id="background"></div>
